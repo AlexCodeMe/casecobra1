@@ -14,6 +14,7 @@ import { cn, formatPrice } from '@/lib/utils'
 import { BASE_PRICE, PRODUCT_PRICES } from '@/constants/products'
 import { useMutation } from '@tanstack/react-query'
 import { createCheckoutSession } from './actions'
+import LoginModal from '@/components/login-modal'
 
 export default function DesignPreview({ configuration }: { configuration: Configuration }) {
     const router = useRouter()
@@ -39,61 +40,40 @@ export default function DesignPreview({ configuration }: { configuration: Config
         mutationKey: ['get-checkout-session'],
         mutationFn: createCheckoutSession,
         onSuccess: ({ url }) => {
-          if (url) router.push(url)
-          else throw new Error('Unable to retrieve payment URL.')
+            if (url) router.push(url)
+            else throw new Error('Unable to retrieve payment URL.')
         },
         onError: () => {
-          toast({
-            title: 'Something went wrong',
-            description: 'There was an error on our end. Please try again.',
-            variant: 'destructive',
-          })
+            toast({
+                title: 'Something went wrong',
+                description: 'There was an error on our end. Please try again.',
+                variant: 'destructive',
+            })
         },
-      })
+    })
 
     function handleCheckout() {
         if (user) {
             createPaymentSession({ configId: id })
-          } else {
+        } else {
             // need to log in
             localStorage.setItem('configurationId', id)
             setIsLoginModalOpen(true)
-          }
+        }
     }
 
     return (
         <>
-            <div aria-hidden='true'
-                className='pointer-events-none select-none absolute inset-0 overflow-hidden flex justify-center'
-            >
+            <div
+                aria-hidden='true'
+                className='pointer-events-none select-none absolute inset-0 overflow-hidden flex justify-center'>
                 <Confetti
                     active={showConfetti}
-                    config={{
-                        angle: 90, // The angle at which the confetti will be shot
-                        spread: 360, // How far the confetti will spread
-                        startVelocity: 30, // Initial velocity of the confetti
-                        elementCount: 200, // Number of confetti pieces
-                        dragFriction: 0.1, // Drag friction applied to confetti
-                        duration: 3000, // Duration of the confetti animation
-                        stagger: 0, // Delay between confetti pieces
-                        width: "10px", // Width of the confetti pieces
-                        height: "10px", // Height of the confetti pieces
-                        colors: [
-                            "#FFC700",
-                            "#FF0000",
-                            "#00FF00",
-                            "#0000FF",
-                            "#FF69B4",
-                            "#B22222",
-                            "#FFD700",
-                            "#00BFFF",
-                            "#4B0082",
-                            "#8A2BE2",
-                        ], // Colors of the confetti pieces
-                    }}
+                    config={{ elementCount: 200, spread: 90 }}
                 />
-
             </div>
+
+            <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
             <div className='mt-20 flex flex-col items-center md:grid text-sm sm:grid-cols-12 sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-12'>
                 <div className='md:col-span-4 lg:col-span-3 md:row-span-2 md:row-end-2'>
